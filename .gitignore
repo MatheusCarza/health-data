@@ -1,0 +1,57 @@
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Python
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Dados locais grandes ou regeneraveis
+dados/
+
+# Variaveis e configuracoes locais
+.env
+.env.*
+!.env.example
+
+# IDEs
+.idea/
+.vscode/
+
+# Oracle / OCI: wallets, chaves e credenciais locais
+.oci/
+oci/
+oci_config*
+Wallet_*.zip
+wallet_*.zip
+wallet-*.zip
+*_wallet.zip
+*_wallet_*.zip
+cwallet.sso
+ewallet.p12
+tnsnames.ora
+sqlnet.ora
+ojdbc.properties
+keystore.jks
+truststore.jks
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+credentials.*
+secrets.*
+!credentials.example
+!secrets.example
+
+# Arquivos temporarios
+*.log
+*.tmp
+*.swp

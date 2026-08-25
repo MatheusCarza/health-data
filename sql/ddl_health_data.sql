@@ -9,7 +9,7 @@
 -- Datasets utilizados (baixados em 2026-08-05, ver README.md do repositorio):
 --   Fonte 1 (SIH/SUS, relacional)  - ftp://ftp.datasus.gov.br/dissemin/publicos/SIHSUS/200801_/Dados
 --   Fonte 2 (CNES, JSON via API)   - https://apidadosabertos.saude.gov.br/cnes/estabelecimentos
---   Fonte 3 (IBGE, CSV)            - via biblioteca pysus (pysus.ibge())
+--   Fonte 3 (IBGE, CSV)            - Estimativas da Populacao 2024, XLS oficial do IBGE
 --
 -- Cobre os 4 dominios pedidos na Sprint 3, Entrega 03 da disciplina
 -- Data Architecture, Analytics & NoSQL Solutions:
@@ -60,7 +60,7 @@ BEGIN
         credential_name => NULL,
         file_uri_list   => '<PAR_URL_AQUI>',
         format          => JSON_OBJECT('type' VALUE 'csv', 'skipheaders' VALUE '1', 'delimiter' VALUE ','),
-        column_list     => 'MUNIC_RES_IBGE NUMBER(7), POPULACAO NUMBER(10)'
+        column_list     => 'MUNIC_RES_IBGE NUMBER(7), NOME_MUNICIPIO VARCHAR2(100), POPULACAO NUMBER(10)'
     );
 END;
 /
@@ -82,7 +82,7 @@ CREATE TABLE dim_municipio (
 
 COMMENT ON TABLE dim_municipio IS 'Dimensao geografica: municipios do estado de Sao Paulo. Codigo no padrao DATASUS (6 digitos, sem digito verificador). Populada a partir de dim_municipio_ext (camada Bronze -> Prata), convertendo o codigo IBGE de 7 para 6 digitos.';
 COMMENT ON COLUMN dim_municipio.cod_municipio IS 'Codigo do municipio no padrao IBGE/DATASUS de 6 digitos (mesmo formato usado em SIH.MUNIC_RES e CNES.codigo_municipio).';
-COMMENT ON COLUMN dim_municipio.nome_municipio IS 'Nome do municipio. Nao vem nas fontes baixadas (SIH/CNES/IBGE trazem so o codigo) - a preencher com tabela auxiliar do IBGE se necessario.';
+COMMENT ON COLUMN dim_municipio.nome_municipio IS 'Nome oficial do municipio conforme a tabela de Estimativas da Populacao 2024 do IBGE.';
 COMMENT ON COLUMN dim_municipio.populacao_2024 IS 'Populacao estimada 2024, Fonte 3 (IBGE), via dim_municipio_ext.';
 
 -- ============================================================================

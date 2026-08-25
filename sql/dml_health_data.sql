@@ -32,8 +32,18 @@ DELETE FROM dim_municipio;
 -- ----------------------------------------------------------------------------
 -- 1. dim_municipio -- carga a partir da external table (Bronze -> Prata)
 -- ----------------------------------------------------------------------------
-INSERT INTO dim_municipio (cod_municipio, uf, populacao_2024)
-SELECT TRUNC(munic_res_ibge / 10), 'SP', populacao FROM dim_municipio_ext;
+INSERT INTO dim_municipio (
+    cod_municipio,
+    nome_municipio,
+    uf,
+    populacao_2024
+)
+SELECT
+    TRUNC(munic_res_ibge / 10),
+    nome_municipio,
+    'SP',
+    populacao
+FROM dim_municipio_ext;
 
 -- ----------------------------------------------------------------------------
 -- 2. dim_tipo_atendimento -- tabela oficial de especialidade do leito (SIGTAP/SIH)

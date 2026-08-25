@@ -105,8 +105,14 @@ out.append("")
 out.append("-- ----------------------------------------------------------------------------")
 out.append("-- 1. dim_municipio -- carga a partir da external table (Bronze -> Prata)")
 out.append("-- ----------------------------------------------------------------------------")
-out.append("INSERT INTO dim_municipio (cod_municipio, uf, populacao_2024)")
-out.append("SELECT TRUNC(munic_res_ibge / 10), 'SP', populacao FROM dim_municipio_ext;")
+out.append(
+    "INSERT INTO dim_municipio "
+    "(cod_municipio, nome_municipio, uf, populacao_2024)"
+)
+out.append(
+    "SELECT TRUNC(munic_res_ibge / 10), nome_municipio, 'SP', populacao "
+    "FROM dim_municipio_ext;"
+)
 out.append("")
 out.append("-- ----------------------------------------------------------------------------")
 out.append("-- 2. dim_tipo_atendimento -- tabela oficial de especialidade do leito (SIGTAP/SIH)")

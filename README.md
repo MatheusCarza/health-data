@@ -57,7 +57,7 @@ versionados. O DML entregue contém uma amostra reprodutível: 645 municípios,
 .
 ├── baixar_sih_ftp_completo.py   # SIH/SUS completo pelo FTP oficial
 ├── baixar_cnes_api.py           # estabelecimentos pela API do CNES
-├── baixar_ibge_populacao.py     # população municipal pelo PySUS
+├── baixar_ibge_populacao.py     # população municipal pelo XLS oficial do IBGE
 ├── gerar_dml.py                 # gera a carga SQL de exemplo
 ├── sql/
 │   ├── ddl_health_data.sql      # estruturas do banco
@@ -67,8 +67,8 @@ versionados. O DML entregue contém uma amostra reprodutível: 645 municípios,
 
 ## Preparação do ambiente
 
-Use Python 3.11, 3.12 ou 3.13. O PySUS utilizado pelo projeto ainda não
-oferece suporte ao Python 3.14.
+Use Python 3.11, 3.12 ou 3.13 para manter compatibilidade com as dependências
+utilizadas no projeto.
 
 Crie um ambiente virtual com uma versão compatível e instale as dependências:
 
@@ -139,8 +139,9 @@ Saúde, DATASUS e IBGE.
   comunitário consultado não continha os 12 arquivos mensais de 2024.
 - Na API do CNES, o filtro funcional para São Paulo é `codigo_uf=35`; a sigla
   `uf=SP` é aceita, mas ignorada.
-- O retorno do IBGE via PySUS reúne projeções estaduais e população municipal;
-  o script seleciona os registros municipais pelo campo `MUNIC_RES`.
+- A população municipal é obtida diretamente da publicação oficial
+  "Estimativas da População 2024" do IBGE. O script lê a aba de municípios,
+  filtra o estado de São Paulo e gera o CSV usado pela external table.
 
 ## Equipe
 

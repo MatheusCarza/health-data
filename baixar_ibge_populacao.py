@@ -1,53 +1,150 @@
-"""Baixa a estimativa de populacao por municipio do IBGE (via pysus),
-filtrada para Sao Paulo, e salva em CSV (Fonte 3 do desafio: "CSV /
-External Table" com populacao municipal).
+"""Baixa a estimativa oficial da população municipal de 2024 do IBGE,
+filtra os municípios do estado de São Paulo e gera o CSV usado pela
+external table DIM_MUNICIPIO_EXT no Oracle.
 
-Descoberta validada durante o desenvolvimento em 2026-08-05: o dataset
-"ibge" do pysus mistura dois arquivos diferentes
-por ano -- PROJUF (projecao por UF, com faixa etaria/sexo, sem
-municipio) e POPTBR (populacao total por municipio, o que queremos).
-O parametro `group` do pysus.ibge() nao funciona pra separar os dois
-(mesmo problema de outros datasets do pysus -- o campo `group` do
-catalogo vem sempre None). A forma que funciona: baixar sem filtro de
-`group` e separar pelas linhas que tem `MUNIC_RES` preenchido (so
-existem no arquivo POPTBR).
+Fonte oficial:
+IBGE — Estimativas da População Residente nos Municípios Brasileiros,
+data de referência em 1º de julho de 2024.
 
-Uso:
-    python baixar_ibge_populacao.py
+Saída:
+    dados/ibge_populacao_sp_2024.csv
+
+Colunas:
+    MUNIC_RES_IBGE
+    NOME_MUNICIPIO
+    POPULACAO
 """
 
-import os
+from pathlib import Path
 
-import pysus
+import pandas as pd
+import requests
+
 
 ANO = 2024
-PREFIXO_MUNICIPIO_SP = "35"  # codigo IBGE do estado de Sao Paulo
-PASTA_SAIDA = "dados"
+UF = "SP"
+TOTAL_ESPERADO_SP = 645
+
+URL_IBGE = (
+    "https://ftp.ibge.gov.br/Estimativas_de_Populacao/"
+    "Estimativas_2024/estimativa_dou_2024.xls"
+)
+
+PASTA_DADOS = Path("dados")
+ARQUIVO_XLS = PASTA_DADOS / f"estimativa_dou_{ANO}.xls"
+ARQUIVO_CSV = PASTA_DADOS / f"ibge_populacao_sp_{ANO}.csv"
 
 
-def baixar_populacao_municipal(ano: int):
-    print(f"Baixando dados de populacao do IBGE para {ano}...")
-    df = pysus.ibge(year=ano, as_dataframe=True)
+def baixar_xls():
+    """Baixa o XLS oficial do IBGE."""
+    PASTA_DADOS.mkdir(exist_ok=True)
 
-    pop_municipal = df[df["MUNIC_RES"].notna()].copy()
-    pop_municipal["MUNIC_RES"] = pop_municipal["MUNIC_RES"].astype(str)
+    print(f"Baixando estimativas oficiais do IBGE para {ANO}...")
 
-    print(f"Total de municipios no Brasil: {len(pop_municipal)}")
-    return pop_municipal[["MUNIC_RES", "POPULACAO"]]
+    resposta = requests.get(URL_IBGE, timeout=60)
+    resposta.raise_for_status()
+
+    ARQUIVO_XLS.write_bytes(resposta.content)
+
+    print(f"Arquivo original salvo em: {ARQUIVO_XLS}")
 
 
-def filtrar_estado(df, prefixo_uf: str):
-    return df[df["MUNIC_RES"].str.startswith(prefixo_uf)].reset_index(drop=True)
+def preparar_municipios():
+    """Lê o XLS, seleciona São Paulo e padroniza as colunas."""
+
+    df = pd.read_excel(
+        ARQUIVO_XLS,
+        sheet_name="MUNICÍPIOS",
+        header=1,
+        dtype={
+            "UF": str,
+            "COD. UF": str,
+            "COD. MUNIC": str,
+        },
+    )
+
+    sp = df[df["UF"].str.strip() == UF].copy()
+
+    # Código IBGE completo de 7 dígitos:
+    # COD. UF (2 dígitos) + COD. MUNIC (5 dígitos)
+    sp["MUNIC_RES_IBGE"] = (
+        sp["COD. UF"].str.strip().str.zfill(2)
+        + sp["COD. MUNIC"].str.strip().str.zfill(5)
+    )
+
+    sp["NOME_MUNICIPIO"] = (
+        sp["NOME DO MUNICÍPIO"]
+        .astype("string")
+        .str.strip()
+    )
+
+    sp["POPULACAO"] = pd.to_numeric(
+        sp["POPULAÇÃO ESTIMADA"],
+        errors="raise",
+    ).astype(int)
+
+    resultado = (
+        sp[
+            [
+                "MUNIC_RES_IBGE",
+                "NOME_MUNICIPIO",
+                "POPULACAO",
+            ]
+        ]
+        .sort_values("MUNIC_RES_IBGE")
+        .reset_index(drop=True)
+    )
+
+    return resultado
+
+
+def validar(df):
+    """Valida a integridade básica da dimensão municipal."""
+
+    if len(df) != TOTAL_ESPERADO_SP:
+        raise ValueError(
+            f"Esperados {TOTAL_ESPERADO_SP} municípios de SP, "
+            f"mas foram encontrados {len(df)}."
+        )
+
+    if df["MUNIC_RES_IBGE"].duplicated().any():
+        raise ValueError("Foram encontrados códigos IBGE duplicados.")
+
+    if df["NOME_MUNICIPIO"].isna().any():
+        raise ValueError("Existem municípios sem nome.")
+
+    if (df["NOME_MUNICIPIO"].str.strip() == "").any():
+        raise ValueError("Existem municípios com nome vazio.")
+
+    if df["POPULACAO"].isna().any():
+        raise ValueError("Existem municípios sem população.")
+
+    print("Validação concluída:")
+    print(f"  Municípios: {len(df)}")
+    print(f"  Códigos únicos: {df['MUNIC_RES_IBGE'].nunique()}")
+    print(f"  Municípios com nome: {df['NOME_MUNICIPIO'].notna().sum()}")
+
+
+def salvar_csv(df):
+    """Salva o arquivo consumido pela external table do Oracle."""
+
+    df.to_csv(
+        ARQUIVO_CSV,
+        index=False,
+        encoding="utf-8",
+    )
+
+    print(f"CSV salvo em: {ARQUIVO_CSV}")
 
 
 if __name__ == "__main__":
-    pop_brasil = baixar_populacao_municipal(ANO)
-    pop_sp = filtrar_estado(pop_brasil, PREFIXO_MUNICIPIO_SP)
+    baixar_xls()
 
-    print(f"Municipios de SP: {pop_sp.shape[0]}")
-    print(f"Populacao total de SP (soma): {pop_sp['POPULACAO'].astype(int).sum():,}")
+    municipios = preparar_municipios()
 
-    os.makedirs(PASTA_SAIDA, exist_ok=True)
-    caminho = f"{PASTA_SAIDA}/ibge_populacao_sp_{ANO}.csv"
-    pop_sp.to_csv(caminho, index=False, encoding="utf-8-sig")
-    print(f"Salvo em: {caminho}")
+    validar(municipios)
+
+    salvar_csv(municipios)
+
+    print("\nPrimeiros 10 registros:")
+    print(municipios.head(10).to_string(index=False))

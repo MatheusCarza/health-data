@@ -1,29 +1,11 @@
--- ============================================================================
--- Health Data (Challenge FIAP + Oracle) -- Script DML (dados de exemplo)
--- Turma 1TSCPW | Grupo: HealthData
--- Integrantes (ordem alfabetica):
---   Lucas Leal das Chagas       RM571567
---   Matheus Carvalho de Souza   RM568785
---   Vinicius de Assis Araujo    RM570900
---
--- Dados de EXEMPLO (nao representam o dataset completo). A amostra usa os
--- top 15 municipios por volume de internacao e uma fracao proporcional de
--- 0.5% das internacoes, preservando o escopo academico e a reproducibilidade.
--- Esse recorte preserva o sinal real de sazonalidade/tendencia por municipio e mes.
---
--- Gerado por gerar_dml.py em 2026-08-06. Linhas: fato_internacao=5925,
--- dim_estabelecimento=233, dim_municipio=645 (via external table),
--- dim_tipo_atendimento=14 (tabela oficial SIGTAP/SIH, fonte: tabnet.datasus.gov.br/cgi/sih/sxdescr.htm)
--- ============================================================================
-
--- Autonomous Database faz DML paralelo por padrao, o que pode causar deadlock
--- entre os proprios INSERTs sequenciais deste script (ORA-12860, ja visto na
--- pratica com dim_estabelecimento). Desliga pra essa sessao.
+-- ----------------------------------------------------------------------------
+-- 
+-- ----------------------------------------------------------------------------
 ALTER SESSION DISABLE PARALLEL DML;
 
--- Reset idempotente: permite rodar o script de novo sem duplicar PK caso uma
--- execucao anterior tenha inserido parte dos dados. Ordem respeita as FKs
--- (tabela filha antes das tabelas mae).
+-- ----------------------------------------------------------------------------
+-- 
+-- ----------------------------------------------------------------------------
 DELETE FROM fato_internacao;
 DELETE FROM dim_estabelecimento;
 DELETE FROM dim_tipo_atendimento;

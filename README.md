@@ -27,7 +27,7 @@ O recorte implementado nesta etapa utiliza dados do estado de São Paulo em
 2024. O banco relacional, a carga de exemplo e as evidências já produzidas na
 Sprint 3 estão disponíveis neste repositório. A Sprint 3 permanece em
 desenvolvimento; na disciplina Data Architecture, Analytics & NoSQL Solutions,
-1 das 3 consultas `SELECT AI SHOWSQL` previstas foi concluída.
+as 3 consultas `SELECT AI SHOWSQL` previstas foram concluídas.
 
 ## Arquitetura
 

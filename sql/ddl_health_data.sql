@@ -83,6 +83,7 @@ CREATE TABLE dim_municipio (
 COMMENT ON TABLE dim_municipio IS 'Dimensao geografica: municipios do estado de Sao Paulo. Codigo no padrao DATASUS (6 digitos, sem digito verificador). Populada a partir de dim_municipio_ext (camada Bronze -> Prata), convertendo o codigo IBGE de 7 para 6 digitos.';
 COMMENT ON COLUMN dim_municipio.cod_municipio IS 'Codigo do municipio no padrao IBGE/DATASUS de 6 digitos (mesmo formato usado em SIH.MUNIC_RES e CNES.codigo_municipio).';
 COMMENT ON COLUMN dim_municipio.nome_municipio IS 'Nome oficial do municipio conforme a tabela de Estimativas da Populacao 2024 do IBGE.';
+COMMENT ON COLUMN dim_municipio.uf IS 'Sigla da unidade federativa do municipio. No recorte atual do Health Data, o valor esperado e SP.';
 COMMENT ON COLUMN dim_municipio.populacao_2024 IS 'Populacao estimada 2024, Fonte 3 (IBGE), via dim_municipio_ext.';
 
 -- ============================================================================
@@ -131,9 +132,26 @@ CREATE TABLE dim_estabelecimento (
 
 COMMENT ON TABLE dim_estabelecimento IS 'Dimensao de hospitais/unidades de saude e capacidade instalada, Fonte 2 (CNES, JSON via API apidadosabertos.saude.gov.br).';
 COMMENT ON COLUMN dim_estabelecimento.codigo_cnes IS 'Codigo CNES do estabelecimento (chave natural, tambem referenciada no campo CNES do SIH).';
+COMMENT ON COLUMN dim_estabelecimento.nome_fantasia IS 'Nome pelo qual o estabelecimento de saude e conhecido publicamente, conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.razao_social IS 'Razao social da entidade responsavel pelo estabelecimento, conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.cnpj IS 'CNPJ da entidade responsavel pelo estabelecimento, quando informado pelo CNES.';
 COMMENT ON COLUMN dim_estabelecimento.cod_municipio IS 'Municipio do estabelecimento (FK dim_municipio), codigo DATASUS 6 digitos - mesmo formato ja usado pelo CNES, sem conversao necessaria.';
+COMMENT ON COLUMN dim_estabelecimento.bairro IS 'Bairro do endereco do estabelecimento de saude, conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.endereco IS 'Logradouro do estabelecimento de saude, conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.cep IS 'CEP do estabelecimento de saude, conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.telefone IS 'Telefone institucional do estabelecimento de saude, quando informado pelo CNES.';
+COMMENT ON COLUMN dim_estabelecimento.email IS 'Endereco de email institucional do estabelecimento de saude, quando informado pelo CNES.';
+COMMENT ON COLUMN dim_estabelecimento.latitude IS 'Latitude geografica do estabelecimento, usada em mapas e analises territoriais.';
+COMMENT ON COLUMN dim_estabelecimento.longitude IS 'Longitude geografica do estabelecimento, usada em mapas e analises territoriais.';
+COMMENT ON COLUMN dim_estabelecimento.esfera_administrativa IS 'Esfera administrativa responsavel pelo estabelecimento de saude, conforme classificacao do CNES.';
+COMMENT ON COLUMN dim_estabelecimento.natureza_juridica IS 'Natureza juridica da entidade responsavel pelo estabelecimento, conforme o CNES.';
 COMMENT ON COLUMN dim_estabelecimento.possui_centro_cirurgico IS 'Indicador de capacidade hospitalar (S/N) - origem: estabelecimento_possui_centro_cirurgico do CNES.';
+COMMENT ON COLUMN dim_estabelecimento.possui_centro_obstetrico IS 'Indicador de existencia de centro obstetrico no estabelecimento (S/N), conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.possui_centro_neonatal IS 'Indicador de existencia de centro neonatal no estabelecimento (S/N), conforme o CNES.';
 COMMENT ON COLUMN dim_estabelecimento.possui_atendimento_hospitalar IS 'Indicador de capacidade hospitalar (S/N) - origem: estabelecimento_possui_atendimento_hospitalar do CNES.';
+COMMENT ON COLUMN dim_estabelecimento.possui_atendimento_ambulatorial IS 'Indicador de oferta de atendimento ambulatorial pelo estabelecimento (S/N), conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.possui_servico_apoio IS 'Indicador de existencia de servicos de apoio no estabelecimento (S/N), conforme o CNES.';
+COMMENT ON COLUMN dim_estabelecimento.data_atualizacao IS 'Data da ultima atualizacao do registro do estabelecimento informada pelo CNES.';
 COMMENT ON COLUMN dim_estabelecimento.dados_json IS 'Registro completo do estabelecimento em formato JSON nativo (tipo JSON do Oracle), preservando o dado semiestruturado original da API do CNES - alem das colunas relacionais ja extraidas acima, usadas para FK/filtros/analises.';
 
 -- ============================================================================
@@ -173,7 +191,18 @@ COMMENT ON TABLE fato_internacao IS 'Fato: internacoes hospitalares do estado de
 COMMENT ON COLUMN fato_internacao.id_internacao IS 'Chave substituta (surrogate key) gerada pelo Oracle para identificar cada linha da tabela fato.';
 COMMENT ON COLUMN fato_internacao.cod_municipio_residencia IS 'Municipio de residencia do paciente (origem: SIH.MUNIC_RES).';
 COMMENT ON COLUMN fato_internacao.cod_municipio_internacao IS 'Municipio onde ocorreu a internacao (origem: SIH.MUNIC_MOV).';
+COMMENT ON COLUMN fato_internacao.codigo_cnes IS 'Estabelecimento de saude onde ocorreu a internacao, identificado pelo codigo CNES.';
+COMMENT ON COLUMN fato_internacao.codigo_especialidade IS 'Tipo de atendimento ou especialidade do leito da internacao, conforme o campo ESPEC do SIH/SUS.';
+COMMENT ON COLUMN fato_internacao.dt_internacao IS 'Data de inicio da internacao hospitalar, origem SIH/DT_INTER.';
+COMMENT ON COLUMN fato_internacao.dt_saida IS 'Data de encerramento ou saida da internacao hospitalar, origem SIH/DT_SAIDA.';
 COMMENT ON COLUMN fato_internacao.dias_permanencia IS 'Dias de permanencia (origem: SIH.DIAS_PERM) - indicador chave de capacidade/pressao hospitalar.';
-COMMENT ON COLUMN fato_internacao.valor_total IS 'Valor total pago pela internacao (origem: SIH.VAL_TOT).';
-COMMENT ON COLUMN fato_internacao.indicador_obito IS 'Indicador de obito (origem: SIH.MORTE) - 0 ou 1.';
+COMMENT ON COLUMN fato_internacao.idade IS 'Idade do paciente em anos na internacao, usada somente de forma agregada nas analises.';
+COMMENT ON COLUMN fato_internacao.sexo IS 'Sexo registrado no SIH/SUS para caracterizacao agregada do perfil das internacoes.';
+COMMENT ON COLUMN fato_internacao.raca_cor IS 'Codigo de raca ou cor registrado no SIH/SUS para analises agregadas de equidade assistencial.';
 COMMENT ON COLUMN fato_internacao.diag_principal IS 'Codigo CID-10 do diagnostico principal (origem: SIH.DIAG_PRINC). Sem tabela de dominio propria neste escopo - nao ha dataset de descricoes de CID baixado ainda.';
+COMMENT ON COLUMN fato_internacao.proc_realizado IS 'Codigo do procedimento principal realizado durante a internacao, conforme o SIH/SUS.';
+COMMENT ON COLUMN fato_internacao.valor_total IS 'Valor total pago pela internacao (origem: SIH.VAL_TOT).';
+COMMENT ON COLUMN fato_internacao.valor_uti IS 'Valor associado ao uso de unidade de terapia intensiva na internacao, conforme o SIH/SUS.';
+COMMENT ON COLUMN fato_internacao.indicador_obito IS 'Indicador de obito (origem: SIH.MORTE) - 0 ou 1.';
+COMMENT ON COLUMN fato_internacao.ano_competencia IS 'Ano da competencia de processamento da internacao no SIH/SUS.';
+COMMENT ON COLUMN fato_internacao.mes_competencia IS 'Mes da competencia de processamento da internacao no SIH/SUS, de 1 a 12.';

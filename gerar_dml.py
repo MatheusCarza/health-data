@@ -71,40 +71,21 @@ cnes_sample = cnes[cnes["codigo_cnes"].isin(cnes_codes)].drop_duplicates(subset=
 print(f"Estabelecimentos distintos na amostra: {len(cnes_sample)}")
 
 out = []
-out.append("-- ============================================================================")
-out.append("-- Health Data (Challenge FIAP + Oracle) -- Script DML (dados de exemplo)")
-out.append("-- Turma 1TSCPW | Grupo: HealthData")
-out.append("-- Integrantes (ordem alfabetica):")
-out.append("--   Lucas Leal das Chagas       RM571567")
-out.append("--   Matheus Carvalho de Souza   RM568785")
-out.append("--   Vinicius de Assis Araujo    RM570900")
-out.append("--")
-out.append("-- Dados de EXEMPLO (nao representam o dataset completo). A amostra usa os")
-out.append("-- top 15 municipios por volume de internacao e uma fracao proporcional de")
-out.append("-- 0.5% das internacoes, preservando o escopo academico e a reproducibilidade.")
-out.append("-- Esse recorte preserva o sinal real de sazonalidade/tendencia por municipio e mes.")
-out.append("--")
-out.append(f"-- Gerado por gerar_dml.py em 2026-08-06. Linhas: fato_internacao={len(sample)},")
-out.append(f"-- dim_estabelecimento={len(cnes_sample)}, dim_municipio=645 (via external table),")
-out.append("-- dim_tipo_atendimento=14 (tabela oficial SIGTAP/SIH, fonte: tabnet.datasus.gov.br/cgi/sih/sxdescr.htm)")
-out.append("-- ============================================================================")
+out.append("-- Health Data - Script DML")
+out.append("-- Lucas Leal das Chagas - RM571567")
+out.append("-- Matheus Carvalho de Souza - RM568785")
+out.append("-- Vinicius de Assis Araujo - RM570900")
 out.append("")
-out.append("-- Autonomous Database faz DML paralelo por padrao, o que pode causar deadlock")
-out.append("-- entre os proprios INSERTs sequenciais deste script (ORA-12860, ja visto na")
-out.append("-- pratica com dim_estabelecimento). Desliga pra essa sessao.")
+out.append("-- Desativa o DML paralelo para evitar ORA-12860 durante a carga.")
 out.append("ALTER SESSION DISABLE PARALLEL DML;")
 out.append("")
-out.append("-- Reset idempotente: permite rodar o script de novo sem duplicar PK caso uma")
-out.append("-- execucao anterior tenha inserido parte dos dados. Ordem respeita as FKs")
-out.append("-- (tabela filha antes das tabelas mae).")
+out.append("-- Limpa as tabelas na ordem das dependências.")
 out.append("DELETE FROM fato_internacao;")
 out.append("DELETE FROM dim_estabelecimento;")
 out.append("DELETE FROM dim_tipo_atendimento;")
 out.append("DELETE FROM dim_municipio;")
 out.append("")
-out.append("-- ----------------------------------------------------------------------------")
-out.append("-- 1. dim_municipio -- carga a partir da external table (Bronze -> Prata)")
-out.append("-- ----------------------------------------------------------------------------")
+out.append("-- Municípios: carga da tabela externa.")
 out.append(
     "INSERT INTO dim_municipio "
     "(cod_municipio, nome_municipio, uf, populacao_2024)"
@@ -114,10 +95,7 @@ out.append(
     "FROM dim_municipio_ext;"
 )
 out.append("")
-out.append("-- ----------------------------------------------------------------------------")
-out.append("-- 2. dim_tipo_atendimento -- tabela oficial de especialidade do leito (SIGTAP/SIH)")
-out.append("-- Fonte: http://tabnet.datasus.gov.br/cgi/sih/sxdescr.htm (conferido em 2026-08-06)")
-out.append("-- ----------------------------------------------------------------------------")
+out.append("-- Tipos de atendimento.")
 especialidades = {
     "01": "Clinica cirurgica",
     "02": "Obstetricia",
@@ -138,9 +116,7 @@ for cod, desc in especialidades.items():
     out.append(f"INSERT INTO dim_tipo_atendimento (codigo_especialidade, descricao) VALUES ({esc(cod)}, {esc(desc)});")
 out.append("")
 
-out.append("-- ----------------------------------------------------------------------------")
-out.append(f"-- 3. dim_estabelecimento -- {len(cnes_sample)} hospitais/unidades (amostra real, Fonte 2 CNES)")
-out.append("-- ----------------------------------------------------------------------------")
+out.append("-- Estabelecimentos.")
 bool_map = {True: "S", False: "N", "SIM": "S", "NAO": "N", 1: "S", 0: "N"}
 for _, row in cnes_sample.iterrows():
     def flag(col):
@@ -184,9 +160,7 @@ for _, row in cnes_sample.iterrows():
     out.append(f"INSERT INTO dim_estabelecimento ({cols}) VALUES ({vals});")
 out.append("")
 
-out.append("-- ----------------------------------------------------------------------------")
-out.append(f"-- 4. fato_internacao -- {len(sample)} internacoes (amostra real, Fonte 1 SIH)")
-out.append("-- ----------------------------------------------------------------------------")
+out.append("-- Internações.")
 cols_fato = ("cod_municipio_residencia, cod_municipio_internacao, codigo_cnes, "
              "codigo_especialidade, dt_internacao, dt_saida, dias_permanencia, idade, sexo, "
              "raca_cor, diag_principal, proc_realizado, valor_total, valor_uti, "

@@ -1,5 +1,9 @@
--- ============================================================================
+-- Health Data - Script DDL
+-- Lucas Leal das Chagas - RM571567
+-- Matheus Carvalho de Souza - RM568785
+-- Vinicius de Assis Araujo - RM570900
 
+-- Exclusão opcional das estruturas, na ordem das dependências.
 -- DROP TABLE fato_internacao PURGE;
 -- DROP TABLE dim_estabelecimento PURGE;
 -- DROP TABLE dim_tipo_atendimento PURGE;
@@ -8,17 +12,8 @@
 -- BEGIN DBMS_CLOUD.DROP_EXTERNAL_TABLE(table_name => 'DIM_MUNICIPIO_EXT'); END;
 -- /
 
--- ============================================================================
--- 0. dim_municipio_ext — EXTERNAL TABLE, Fonte 3 (IBGE, CSV), camada Bronze
--- ============================================================================
--- Pre-requisito (feito uma vez, fora deste script, via Console OCI):
---   1. Criar um bucket no Object Storage (ex.: "health-data-challenge").
---   2. Fazer upload de dados/ibge_populacao_sp_2024.csv pro bucket.
---   3. Gerar uma Pre-Authenticated Request (PAR) de leitura pro objeto
---      (Object Storage > bucket > objeto > "Create Pre-Authenticated Request").
---   4. Colar a URL gerada no lugar de <PAR_URL_AQUI> abaixo.
--- A PAR ja e auto-autenticada (URL de leitura publica temporaria/permanente),
--- por isso credential_name fica NULL - nao precisa DBMS_CLOUD.CREATE_CREDENTIAL.
+-- Tabela externa de municípios.
+-- Substitua <PAR_URL_AQUI> pela URL PAR do arquivo CSV; esse acesso não usa credential_name.
 
 BEGIN
     DBMS_CLOUD.CREATE_EXTERNAL_TABLE(
@@ -31,13 +26,9 @@ BEGIN
 END;
 /
 
--- COMMENT ON TABLE nao e suportado em tabelas externas pelo Oracle
--- (ORA-30657: "operation not supported on external organized table").
--- Documentacao do proposito desta tabela fica so no comentario SQL acima.
+-- Tabelas externas não aceitam COMMENT ON TABLE (ORA-30657).
 
--- ============================================================================
--- 1. dim_municipio — dados geograficos (municipios de SP), camada Prata
--- ============================================================================
+-- Dimensão de municípios.
 CREATE TABLE dim_municipio (
     cod_municipio       NUMBER(6)       NOT NULL,
     nome_municipio      VARCHAR2(100),
@@ -52,9 +43,7 @@ COMMENT ON COLUMN dim_municipio.nome_municipio IS 'Nome oficial do municipio con
 COMMENT ON COLUMN dim_municipio.uf IS 'Sigla da unidade federativa do municipio. No recorte atual do Health Data, o valor esperado e SP.';
 COMMENT ON COLUMN dim_municipio.populacao_2024 IS 'Populacao estimada 2024, Fonte 3 (IBGE), via dim_municipio_ext.';
 
--- ============================================================================
--- 2. dim_tipo_atendimento — especialidade do leito (perfis/categorias de atendimento)
--- ============================================================================
+-- Dimensão de tipos de atendimento.
 CREATE TABLE dim_tipo_atendimento (
     codigo_especialidade   VARCHAR2(2)     NOT NULL,
     descricao               VARCHAR2(100),
@@ -65,9 +54,7 @@ COMMENT ON TABLE dim_tipo_atendimento IS 'Dimensao de tipo/perfil de atendimento
 COMMENT ON COLUMN dim_tipo_atendimento.codigo_especialidade IS 'Codigo da especialidade do leito conforme tabela oficial SIGTAP/SIH (campo ESPEC). Valores encontrados no dataset: 01,02,03,04,05,06,07,08,09,10,12,13,14,87.';
 COMMENT ON COLUMN dim_tipo_atendimento.descricao IS 'Descricao da especialidade - CONFERIR e preencher com a tabela oficial de especialidades do SIH/SIGTAP antes da carga (nao inventar descricao sem checar a fonte oficial).';
 
--- ============================================================================
--- 3. dim_estabelecimento — hospitais / unidades de saude / capacidade (Fonte 2: CNES)
--- ============================================================================
+-- Dimensão de estabelecimentos.
 CREATE TABLE dim_estabelecimento (
     codigo_cnes                        VARCHAR2(7)     NOT NULL,
     nome_fantasia                      VARCHAR2(200),
@@ -120,9 +107,7 @@ COMMENT ON COLUMN dim_estabelecimento.possui_servico_apoio IS 'Indicador de exis
 COMMENT ON COLUMN dim_estabelecimento.data_atualizacao IS 'Data da ultima atualizacao do registro do estabelecimento informada pelo CNES.';
 COMMENT ON COLUMN dim_estabelecimento.dados_json IS 'Registro completo do estabelecimento em formato JSON nativo (tipo JSON do Oracle), preservando o dado semiestruturado original da API do CNES - alem das colunas relacionais ja extraidas acima, usadas para FK/filtros/analises.';
 
--- ============================================================================
--- 4. fato_internacao — internacoes hospitalares (Fonte 1: SIH/SUS)
--- ============================================================================
+-- Fato de internações.
 CREATE TABLE fato_internacao (
     id_internacao           NUMBER          GENERATED ALWAYS AS IDENTITY,
     cod_municipio_residencia NUMBER(6),

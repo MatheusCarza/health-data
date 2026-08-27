@@ -51,6 +51,9 @@ Os arquivos em `dados/` são grandes ou regeneráveis e, por isso, não são
 versionados. O DML entregue contém uma amostra reprodutível: 645 municípios,
 14 tipos de atendimento, 233 estabelecimentos e 5.925 internações.
 
+As descrições dos tipos de atendimento seguem a
+[tabela de especialidades do leito do SIH/SUS](http://tabnet.datasus.gov.br/cgi/sih/sxdescr.htm).
+
 ## Estrutura do repositório
 
 ```text

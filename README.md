@@ -23,11 +23,11 @@ Autonomous AI Database 26ai. A proposta completa combina:
 - alertas e indicadores para acompanhamento da pressão hospitalar;
 - arquitetura preparada para análises estatísticas e modelos preditivos.
 
-O recorte implementado nesta etapa utiliza dados do estado de São Paulo em
-2024. O banco relacional, a carga de exemplo e as evidências já produzidas na
-Sprint 3 estão disponíveis neste repositório. A Sprint 3 permanece em
-desenvolvimento; na disciplina Data Architecture, Analytics & NoSQL Solutions,
-as 3 consultas `SELECT AI SHOWSQL` previstas foram concluídas.
+O recorte implementado utiliza dados do estado de São Paulo em 2024. O banco
+relacional, a carga de exemplo, as evidências da Sprint 3 e o MVP APEX estão
+disponíveis neste repositório. Além das três consultas `SELECT AI SHOWSQL`, o
+fluxo conversacional foi validado no APEX com respostas em português para
+resumo geral, município, estabelecimento e tipo de atendimento.
 
 ## Arquitetura
 
@@ -37,7 +37,8 @@ as 3 consultas `SELECT AI SHOWSQL` previstas foram concluídas.
    uma external table.
 4. **Camada Prata:** dimensões de municípios, estabelecimentos e tipos de
    atendimento, além da tabela fato de internações.
-5. **Consumo:** Oracle Select AI e, na evolução do MVP, dashboards no APEX.
+5. **Consumo:** dashboards e relatórios no Oracle APEX, com Assistente IA em
+   linguagem natural integrado ao Oracle Select AI.
 
 ## Fontes e resultados da coleta
 
@@ -62,10 +63,14 @@ As descrições dos tipos de atendimento seguem a
 ├── baixar_cnes_api.py           # estabelecimentos pela API do CNES
 ├── baixar_ibge_populacao.py     # população municipal pelo XLS oficial do IBGE
 ├── gerar_dml.py                 # gera a carga SQL de exemplo
+├── apex/f100/                   # export dividido da aplicação APEX 100
 ├── sql/
 │   ├── ddl_health_data.sql      # estruturas do banco
-│   └── dml_health_data.sql      # carga de exemplo
-└── evidencias/sprint3/          # registros visuais da implementação
+│   ├── dml_health_data.sql      # carga de exemplo
+│   ├── apex_mvp_views.sql       # views analíticas consumidas pelo APEX
+│   └── apex_select_ai.sql       # função intermediária segura do Select AI
+├── evidencias/sprint3/          # registros visuais da implementação de dados
+└── evidencias/sprint4/          # evidências do MVP APEX
 ```
 
 ## Preparação do ambiente
@@ -108,6 +113,24 @@ Depois, no Oracle Database Actions ou SQL Developer:
 2. confirme a leitura da external table do IBGE;
 3. execute `sql/dml_health_data.sql`;
 4. valide as contagens e as chaves estrangeiras.
+
+## Restauração do MVP APEX
+
+O diretório `apex/f100/` contém o export SQL dividido da aplicação 100, com IDs
+originais preservados para facilitar comparações no Git. Para reconstruir o
+MVP em outro ambiente:
+
+1. execute `sql/ddl_health_data.sql` e `sql/dml_health_data.sql`;
+2. execute `sql/apex_mvp_views.sql` no schema associado ao workspace APEX;
+3. configure fora do repositório a credencial e o profile do provedor de IA;
+4. execute `sql/apex_select_ai.sql` como proprietário da função e confira o
+   `GRANT EXECUTE` ao schema APEX;
+5. importe `apex/f100/install.sql` pelo APEX ou execute o conjunto de arquivos
+   no ambiente de destino.
+
+A chave do provedor, a credencial protegida no banco e demais segredos não são
+exportados nem versionados. O código APEX chama somente a função intermediária
+`ADMIN.HEALTH_DATA_SELECT_AI`.
 
 ## Configuração segura da external table
 

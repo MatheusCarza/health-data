@@ -1,0 +1,60 @@
+prompt --application/shared_components/navigation/breadcrumbs/breadcrumb
+begin
+--   Manifest
+--     MENU: Breadcrumb
+--   Manifest End
+wwv_flow_imp.component_begin (
+ p_version_yyyy_mm_dd=>'2026.03.30'
+,p_release=>'26.1.4'
+,p_default_workspace_id=>9348757358068450
+,p_default_application_id=>100
+,p_default_id_offset=>0
+,p_default_owner=>'WKSP_HEALTHDATA'
+);
+wwv_flow_imp_shared.create_menu(
+ p_id=>wwv_flow_imp.id(9357275359169170)
+,p_name=>'Breadcrumb'
+,p_static_id=>'breadcrumb'
+);
+wwv_flow_imp_shared.create_menu_option(
+ p_id=>wwv_flow_imp.id(9406967467458043)
+,p_parent_id=>wwv_flow_imp.id(9357482837169174)
+,p_short_name=>'Assistente IA'
+,p_static_id=>'assistente-ia'
+,p_link=>'f?p=&APP_ID.:5:&APP_SESSION.::&DEBUG.:::'
+,p_page_id=>5
+);
+wwv_flow_imp_shared.create_menu_option(
+ p_id=>wwv_flow_imp.id(9394940054395894)
+,p_parent_id=>wwv_flow_imp.id(9357482837169174)
+,p_short_name=>'Estabelecimentos'
+,p_static_id=>'estabelecimentos'
+,p_link=>'f?p=&APP_ID.:3:&APP_SESSION.::&DEBUG.:::'
+,p_page_id=>3
+);
+wwv_flow_imp_shared.create_menu_option(
+ p_id=>wwv_flow_imp.id(9357482837169174)
+,p_short_name=>'Home'
+,p_static_id=>'home'
+,p_link=>'f?p=&APP_ID.:1:&APP_SESSION.::&DEBUG.:::'
+,p_page_id=>1
+);
+wwv_flow_imp_shared.create_menu_option(
+ p_id=>wwv_flow_imp.id(9388546449362753)
+,p_parent_id=>wwv_flow_imp.id(9357482837169174)
+,p_short_name=>unistr('Munic\00EDpios')
+,p_static_id=>unistr('munic\00EDpios')
+,p_link=>'f?p=&APP_ID.:2:&APP_SESSION.::&DEBUG.:::'
+,p_page_id=>2
+);
+wwv_flow_imp_shared.create_menu_option(
+ p_id=>wwv_flow_imp.id(9401378770432254)
+,p_parent_id=>wwv_flow_imp.id(9357482837169174)
+,p_short_name=>'Tipos de atendimento'
+,p_static_id=>'tipos-de-atendimento'
+,p_link=>'f?p=&APP_ID.:4:&APP_SESSION.::&DEBUG.:::'
+,p_page_id=>4
+);
+wwv_flow_imp.component_end;
+end;
+/

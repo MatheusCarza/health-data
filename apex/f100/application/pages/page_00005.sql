@@ -21,6 +21,10 @@ wwv_flow_imp_page.create_page(
 ,p_page_template_options=>'#DEFAULT#'
 ,p_protection_level=>'C'
 ,p_page_component_map=>'17'
+,p_created_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_last_updated_on=>wwv_flow_imp.dz('20260910162413Z')
+,p_created_by=>'MATHEUS'
+,p_last_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9406306354458042)
@@ -35,6 +39,10 @@ wwv_flow_imp_page.create_page_plug(
 ,p_menu_id=>wwv_flow_imp.id(9357275359169170)
 ,p_plug_source_type=>'NATIVE_BREADCRUMB'
 ,p_menu_template_id=>4073839682315169711
+,p_created_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9379005333218610)
@@ -49,6 +57,10 @@ wwv_flow_imp_page.create_page_plug(
 ,p_attributes=>wwv_flow_t_plugin_attributes(wwv_flow_t_varchar2(
   'expand_shortcuts', 'N',
   'output_as', 'HTML')).to_clob
+,p_created_on=>wwv_flow_imp.dz('20260909161303Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909161656Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_button(
  p_id=>wwv_flow_imp.id(9379340651218613)
@@ -64,6 +76,10 @@ wwv_flow_imp_page.create_page_button(
 ,p_button_image_alt=>'Analisar'
 ,p_button_position=>'CREATE'
 ,p_warn_on_unsaved_changes=>null
+,p_created_on=>wwv_flow_imp.dz('20260909162206Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909232332Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(9379171863218611)
@@ -83,6 +99,10 @@ wwv_flow_imp_page.create_page_item(
   'character_counter', 'N',
   'resizable', 'Y',
   'trim_spaces', 'BOTH')).to_clob
+,p_created_on=>wwv_flow_imp.dz('20260909161553Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909161553Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(9379272978218612)
@@ -102,6 +122,10 @@ wwv_flow_imp_page.create_page_item(
   'character_counter', 'N',
   'resizable', 'Y',
   'trim_spaces', 'BOTH')).to_clob
+,p_created_on=>wwv_flow_imp.dz('20260909162030Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909162030Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_da_event(
  p_id=>wwv_flow_imp.id(9549946929981603)
@@ -113,6 +137,10 @@ wwv_flow_imp_page.create_page_da_event(
 ,p_bind_type=>'bind'
 ,p_execution_type=>'IMMEDIATE'
 ,p_bind_event_type=>'click'
+,p_created_on=>wwv_flow_imp.dz('20260909232740Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910162413Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(9772725502510901)
@@ -124,6 +152,10 @@ wwv_flow_imp_page.create_page_da_action(
 ,p_action=>'NATIVE_DISABLE'
 ,p_affected_elements_type=>'BUTTON'
 ,p_affected_button_id=>wwv_flow_imp.id(9379340651218613)
+,p_created_on=>wwv_flow_imp.dz('20260910003921Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910162323Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(9772860045510902)
@@ -135,6 +167,10 @@ wwv_flow_imp_page.create_page_da_action(
 ,p_action=>'NATIVE_ENABLE'
 ,p_affected_elements_type=>'BUTTON'
 ,p_affected_button_id=>wwv_flow_imp.id(9379340651218613)
+,p_created_on=>wwv_flow_imp.dz('20260910004032Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910162323Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(9550035821981604)
@@ -171,6 +207,10 @@ wwv_flow_imp_page.create_page_da_action(
   'suppress_change_event', 'N')).to_clob
 ,p_stop_execution_on_error=>'N'
 ,p_wait_for_result=>'Y'
+,p_created_on=>wwv_flow_imp.dz('20260909232740Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910162413Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_da_action(
  p_id=>wwv_flow_imp.id(9772956302510903)
@@ -187,6 +227,10 @@ wwv_flow_imp_page.create_page_da_action(
   'type', 'STATIC_ASSIGNMENT',
   'value', 'Consultando os dados...')).to_clob
 ,p_wait_for_result=>'Y'
+,p_created_on=>wwv_flow_imp.dz('20260910004342Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910004849Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

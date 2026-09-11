@@ -16,6 +16,10 @@ wwv_flow_imp_shared.create_list(
 ,p_name=>'Navigation Menu'
 ,p_static_id=>'navigation-menu'
 ,p_version_scn=>'SH256:6fmJbmbLPaPe5N_dnEvGDPQzPft6tF_6VJTHny7cajc'
+,p_created_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(9405987616458040)
@@ -26,6 +30,10 @@ wwv_flow_imp_shared.create_list_item(
 ,p_list_item_icon=>'fa-comments-o'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
 ,p_list_item_current_for_pages=>'5'
+,p_created_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(9393912879395890)
@@ -36,6 +44,10 @@ wwv_flow_imp_shared.create_list_item(
 ,p_list_item_icon=>'fa-hospital-o'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
 ,p_list_item_current_for_pages=>'3'
+,p_created_on=>wwv_flow_imp.dz('20260909155857Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909155857Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(9369219896169369)
@@ -45,6 +57,10 @@ wwv_flow_imp_shared.create_list_item(
 ,p_list_item_link_target=>'f?p=&APP_ID.:1:&APP_SESSION.::&DEBUG.:::'
 ,p_list_item_icon=>'fa-home'
 ,p_list_item_current_type=>'TARGET_PAGE'
+,p_created_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(9387548850362739)
@@ -55,6 +71,10 @@ wwv_flow_imp_shared.create_list_item(
 ,p_list_item_icon=>'fa-map-marker'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
 ,p_list_item_current_for_pages=>'2'
+,p_created_on=>wwv_flow_imp.dz('20260909155326Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909155326Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_list_item(
  p_id=>wwv_flow_imp.id(9400314940432250)
@@ -65,6 +85,10 @@ wwv_flow_imp_shared.create_list_item(
 ,p_list_item_icon=>'fa-stethoscope'
 ,p_list_item_current_type=>'COLON_DELIMITED_PAGE_LIST'
 ,p_list_item_current_for_pages=>'4'
+,p_created_on=>wwv_flow_imp.dz('20260909160501Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160501Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

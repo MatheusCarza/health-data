@@ -20,6 +20,10 @@ wwv_flow_imp_shared.create_authentication(
 ,p_use_secure_cookie_yn=>'N'
 ,p_ras_mode=>0
 ,p_version_scn=>'SH256:MwlwV9vQNyvTGV3nRFfTrp5n7mJ1Ugme2lUrlsOYuxw'
+,p_created_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

@@ -26,6 +26,10 @@ wwv_flow_imp_page.create_page(
 ,p_dialog_resizable=>'Y'
 ,p_protection_level=>'C'
 ,p_page_component_map=>'25'
+,p_created_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_last_updated_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_created_by=>'MATHEUS'
+,p_last_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9372902406169414)
@@ -54,6 +58,10 @@ wwv_flow_imp_page.create_page_plug(
 'end loop;'))
 ,p_plug_source_type=>'NATIVE_DYNAMIC_CONTENT'
 ,p_plug_query_num_rows=>15
+,p_created_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_item(
  p_id=>wwv_flow_imp.id(9373385892169416)
@@ -66,6 +74,10 @@ wwv_flow_imp_page.create_page_item(
 ,p_protection_level=>'S'
 ,p_attributes=>wwv_flow_t_plugin_attributes(wwv_flow_t_varchar2(
   'value_protected', 'Y')).to_clob
+,p_created_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

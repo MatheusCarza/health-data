@@ -19,6 +19,10 @@ wwv_flow_imp_page.create_page(
 ,p_autocomplete_on_off=>'OFF'
 ,p_protection_level=>'D'
 ,p_page_component_map=>'14'
+,p_created_on=>wwv_flow_imp.dz('20260909152111Z')
+,p_last_updated_on=>wwv_flow_imp.dz('20260909152111Z')
+,p_created_by=>'MATHEUS'
+,p_last_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

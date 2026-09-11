@@ -58,6 +58,10 @@ wwv_flow_imp_shared.create_theme(
 ,p_reference_id=>wwv_imp_util.get_subscription_id(4073840274158169736,2000,'universal-theme',8842.261)
 ,p_version_scn=>'SH256:uQ4JZ2SNi6_ApHjT-kqrEfO43wbND5yijbsMF-bW90c'
 ,p_version_scn_master=>'SH256:WOPVC8vP1TPWUxczh2dJ4mCZcNGSTzA1cn8DjR2oQjY'
+,p_created_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_updated_on=>wwv_flow_imp.dz('20260910180550Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

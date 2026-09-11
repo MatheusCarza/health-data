@@ -18,6 +18,10 @@ wwv_flow_imp_shared.create_list_of_values(
 ,p_lov_query=>'.'||wwv_flow_imp.id(9370790276169390)||'.'
 ,p_location=>'STATIC'
 ,p_version_scn=>'SH256:CnCBOq-zabcz-aPWKwU8C5KDeZy6YuyjvpJoTrTywfI'
+,p_created_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_static_lov_data(
  p_id=>wwv_flow_imp.id(9371447153169400)

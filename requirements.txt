@@ -3,4 +3,7 @@ pandas==2.3.3
 pyarrow==25.0.0
 pyreaddbc==2.0.4
 requests>=2.32,<3
+oracledb>=3.4,<5
+oci>=2.160,<3
 xlrd==2.0.2
+pytest>=8.4,<9

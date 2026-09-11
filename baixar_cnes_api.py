@@ -23,20 +23,29 @@ Descobertas validadas durante o desenvolvimento em 2026-08-05:
 
 Uso:
     python baixar_cnes_api.py
+    python baixar_cnes_api.py --uf SP
 """
 
+import argparse
 import concurrent.futures
+from pathlib import Path
 import time
 
 import pandas as pd
 import requests
 
 BASE_URL = "https://apidadosabertos.saude.gov.br/cnes/estabelecimentos"
-CODIGO_UF_SP = 35
 TAMANHO_PAGINA = 20  # fixo pela API, nao configuravel
 MAX_WORKERS = 15
 
 PASTA_SAIDA = "dados"
+
+CODIGOS_UF = {
+    "RO": 11, "AC": 12, "AM": 13, "RR": 14, "PA": 15, "AP": 16, "TO": 17,
+    "MA": 21, "PI": 22, "CE": 23, "RN": 24, "PB": 25, "PE": 26, "AL": 27,
+    "SE": 28, "BA": 29, "MG": 31, "ES": 32, "RJ": 33, "SP": 35, "PR": 41,
+    "SC": 42, "RS": 43, "MS": 50, "MT": 51, "GO": 52, "DF": 53,
+}
 
 
 def buscar_pagina(
@@ -97,18 +106,48 @@ def baixar_tudo(total_estimado: int, estado_codigo_uf: int) -> pd.DataFrame:
     return pd.DataFrame(registros)
 
 
-if __name__ == "__main__":
-    print("Descobrindo o total de estabelecimentos de SP no CNES...")
-    total = descobrir_total(CODIGO_UF_SP)
+def codigo_uf(uf: str) -> int:
+    """Converte uma sigla de UF no código exigido pela API do CNES."""
+    uf_normalizada = uf.strip().upper()
+    try:
+        return CODIGOS_UF[uf_normalizada]
+    except KeyError as erro:
+        raise ValueError(f"UF inválida: {uf!r}.") from erro
+
+
+def caminho_saida(uf: str) -> Path:
+    """Retorna o caminho determinístico do cadastro da UF."""
+    return Path(PASTA_SAIDA) / f"cnes_{uf.strip().lower()}.parquet"
+
+
+def coletar(uf: str) -> Path:
+    """Coleta, deduplica e persiste os estabelecimentos de uma UF."""
+    uf_normalizada = uf.strip().upper()
+    estado_codigo_uf = codigo_uf(uf_normalizada)
+    print(f"Descobrindo o total de estabelecimentos de {uf_normalizada} no CNES...")
+    total = descobrir_total(estado_codigo_uf)
     print(f"Total estimado: {total}")
 
-    df = baixar_tudo(total, CODIGO_UF_SP)
+    df = baixar_tudo(total, estado_codigo_uf)
+    if df.empty or "codigo_cnes" not in df.columns:
+        raise RuntimeError(f"CNES não retornou estabelecimentos para {uf_normalizada}.")
     df = df.drop_duplicates(subset="codigo_cnes")
     print(f"Total baixado (sem duplicatas): {df.shape[0]} linhas, {df.shape[1]} colunas.")
 
-    import os
-
-    os.makedirs(PASTA_SAIDA, exist_ok=True)
-    caminho = f"{PASTA_SAIDA}/cnes_sp.parquet"
+    Path(PASTA_SAIDA).mkdir(parents=True, exist_ok=True)
+    caminho = caminho_saida(uf_normalizada)
     df.to_parquet(caminho, index=False)
     print(f"Salvo em: {caminho}")
+    return caminho
+
+
+def criar_parser() -> argparse.ArgumentParser:
+    """Cria a interface de linha de comando usada localmente e pelo Airflow."""
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--uf", default="SP", help="Sigla da UF, como SP.")
+    return parser
+
+
+if __name__ == "__main__":
+    argumentos = criar_parser().parse_args()
+    coletar(argumentos.uf)

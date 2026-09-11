@@ -34,7 +34,8 @@ resumo geral, município, estabelecimento e tipo de atendimento.
 1. **Fontes:** SIH/SUS, API do CNES e população municipal do IBGE.
 2. **Ingestão:** scripts Python baixam e normalizam os arquivos públicos.
 3. **Camada Bronze:** CSV do IBGE armazenado no OCI Object Storage e lido por
-   uma external table.
+   uma external table. A automação em desenvolvimento organiza as fontes em
+   prefixos particionados e protege os arquivos brutos por hash.
 4. **Camada Prata:** dimensões de municípios, estabelecimentos e tipos de
    atendimento, além da tabela fato de internações.
 5. **Consumo:** dashboards e relatórios no Oracle APEX, com Assistente IA em
@@ -63,10 +64,16 @@ As descrições dos tipos de atendimento seguem a
 ├── baixar_cnes_api.py           # estabelecimentos pela API do CNES
 ├── baixar_ibge_populacao.py     # população municipal pelo XLS oficial do IBGE
 ├── gerar_dml.py                 # gera a carga SQL de exemplo
+├── airflow/                     # Docker Compose e DAG de orquestração
+├── src/health_data_pipeline/    # validações reutilizáveis do pipeline
+├── tests/                       # testes automatizados do pipeline
 ├── apex/f100/                   # export dividido da aplicação APEX 100
 ├── sql/
 │   ├── ddl_health_data.sql      # estruturas do banco
 │   ├── dml_health_data.sql      # carga de exemplo
+│   ├── etl_incremental.sql      # staging, auditoria e carga mensal transacional
+│   ├── populacao_municipio_historica_20260911.sql # histórico anual do IBGE
+│   ├── grants_apex_populacao_historica.sql # leitura da população pelo schema APEX
 │   ├── apex_mvp_views.sql       # views analíticas consumidas pelo APEX
 │   └── apex_select_ai.sql       # função intermediária segura do Select AI
 ├── evidencias/sprint3/          # registros visuais da implementação de dados
@@ -107,12 +114,101 @@ python baixar_ibge_populacao.py
 python gerar_dml.py
 ```
 
+O coletor SIH também aceita um recorte explícito, sem alterar o comportamento
+padrão de `SP/2024` completo:
+
+```bash
+python baixar_sih_ftp_completo.py \
+  --uf SP \
+  --ano 2024 \
+  --mes-inicio 10 \
+  --mes-fim 12
+```
+
+Recortes mensais recebem nome próprio, como
+`dados/sih_sp_2024_10_12.parquet`, para não sobrescrever o arquivo anual.
+
+Os coletores cadastrais também aceitam parâmetros e preservam `SP/2024` como
+padrão:
+
+```bash
+python baixar_cnes_api.py --uf MG
+python baixar_ibge_populacao.py --uf MG --ano 2025 --url URL_OFICIAL_DO_XLS
+```
+
+Para edições do IBGE diferentes de 2024, a URL é obrigatória porque o endereço
+e o nome do arquivo oficial podem mudar de um ano para outro.
+
 Depois, no Oracle Database Actions ou SQL Developer:
 
 1. revise e execute `sql/ddl_health_data.sql`;
-2. confirme a leitura da external table do IBGE;
-3. execute `sql/dml_health_data.sql`;
-4. valide as contagens e as chaves estrangeiras.
+2. execute uma vez `sql/etl_incremental.sql` para preparar staging e auditoria;
+3. confirme a leitura da external table do IBGE;
+4. execute `sql/dml_health_data.sql`;
+5. valide as contagens e as chaves estrangeiras.
+
+O pacote `pkg_health_data_etl` substitui somente a competência informada e
+confirma a mesma contagem da staging antes do `COMMIT`. Qualquer falha executa
+`ROLLBACK` e fica registrada em `etl_execucao`. O módulo
+`src/health_data_pipeline/oracle_staging.py` já prepara uma competência e as
+quatro stagings; o comando `carregar_competencia_oracle.py` exige `--executar`
+para escrever. A integração com a DAG permanece desativada até o teste
+controlado no banco.
+
+O envio anual para a camada Bronze também começa em modo de planejamento. A
+publicação real exige confirmação explícita e reutiliza um objeto somente quando
+tamanho e SHA-256 são idênticos:
+
+```bash
+python publicar_bronze_ano.py \
+  --bucket health-data-challenge \
+  --data-extracao-cnes 2026-09-10
+
+python publicar_bronze_ano.py \
+  --bucket health-data-challenge \
+  --data-extracao-cnes 2026-09-10 \
+  --executar
+```
+
+O backfill anual também é somente leitura por padrão. Ele valida as 12
+competências, os hashes no Bronze, o snapshot Oracle e as stagings antes de
+exibir o token necessário para uma execução explícita:
+
+```bash
+python carregar_ano_oracle.py \
+  --bucket health-data-challenge \
+  --data-extracao-cnes 2026-09-10
+```
+
+Cada competência é publicada e reconciliada separadamente. Se uma competência
+falhar, não prossiga com o dashboard até restaurar o snapshot usando
+`sql/restore_sample_20260910.sql`.
+
+Instalações que criaram o ETL antes da política de novas tentativas devem
+executar uma vez `sql/etl_retry_fix_20260910.sql`. A carga desabilita Parallel
+DML na própria sessão para que os `MERGE` das dimensões e a substituição mensal
+da fato permaneçam na mesma transação.
+
+Antes de uma carga, copie `.env.example` para um arquivo local ignorado pelo
+Git e use uma wallet descompactada fora do repositório. O teste abaixo apenas
+confirma a conexão e os objetos, sem alterar tabelas:
+
+```bash
+set -a
+source .env
+set +a
+python testar_conexao_oracle.py
+```
+
+## Orquestração com Airflow
+
+O diretório `airflow/` contém uma primeira DAG executável que coordena os três
+coletores, aplica validações de qualidade e gera o DML de exemplo. Ela começa
+sem agenda e sem escrita automática no Oracle. O executor incremental foi
+validado no backfill integral de `SP/2024`, mas sua incorporação à DAG e a agenda
+mensal permanecem pendentes. Consulte
+`airflow/README.md` para executar com Docker Compose e implantar a mesma
+estrutura em uma VM do OCI Compute.
 
 ## Restauração do MVP APEX
 

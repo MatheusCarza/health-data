@@ -26,6 +26,10 @@ wwv_flow_imp_page.create_page(
 ,p_protection_level=>'C'
 ,p_help_text=>'All application help text can be accessed from this page. The links in the "Documentation" region give a much more in-depth explanation of the application''s features and functionality.'
 ,p_page_component_map=>'11'
+,p_created_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_last_updated_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_created_by=>'MATHEUS'
+,p_last_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_page.create_page_plug(
  p_id=>wwv_flow_imp.id(9372255128169408)
@@ -42,6 +46,10 @@ wwv_flow_imp_page.create_page_plug(
 ,p_attributes=>wwv_flow_t_plugin_attributes(wwv_flow_t_varchar2(
   'expand_shortcuts', 'N',
   'output_as', 'HTML')).to_clob
+,p_created_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152113Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

@@ -18,7 +18,7 @@ FROM admin.fato_internacao;
 CREATE OR REPLACE VIEW vw_kpi_cards AS
 SELECT
     1 AS ordem,
-    'Internações da amostra' AS titulo,
+    'Internações registradas' AS titulo,
     TO_CHAR(total_internacoes, 'FM999G999G990') AS valor,
     'Registros de internação analisados (não pacientes únicos)' AS descricao,
     'fa-database' AS icone
@@ -28,7 +28,7 @@ SELECT
     2,
     'Municípios de internação',
     TO_CHAR(total_municipios, 'FM999G999G990'),
-    'Municípios onde ocorreram internações na amostra',
+    'Municípios onde ocorreram internações no período',
     'fa-map-marker'
 FROM vw_resumo_geral
 UNION ALL
@@ -36,7 +36,7 @@ SELECT
     3,
     'Estabelecimentos',
     TO_CHAR(total_estabelecimentos, 'FM999G999G990'),
-    'Unidades com ao menos uma internação na amostra',
+    'Unidades com ao menos uma internação no período',
     'fa-hospital-o'
 FROM vw_resumo_geral
 UNION ALL
@@ -105,21 +105,35 @@ GROUP BY
 
 CREATE OR REPLACE VIEW vw_municipio_indicadores AS
 SELECT
+    f.ano_competencia,
     m.cod_municipio,
     m.nome_municipio,
-    m.populacao_2024,
+    m.uf,
+    p.ano_referencia AS ano_populacao,
+    p.populacao AS populacao_referencia,
+    -- Compatibilidade temporaria com o relatorio APEX exportado.
+    p.populacao AS populacao_2024,
     COUNT(*) AS total_internacoes,
     ROUND(SUM(f.valor_total), 2) AS valor_total,
     ROUND(AVG(f.dias_permanencia), 1) AS permanencia_media,
     SUM(CASE WHEN f.indicador_obito = 1 THEN 1 ELSE 0 END) AS total_obitos,
-    ROUND(100000 * COUNT(*) / NULLIF(m.populacao_2024, 0), 2) AS internacoes_100_mil
+    ROUND(
+        100000 * COUNT(*) / NULLIF(p.populacao, 0),
+        2
+    ) AS internacoes_100_mil
 FROM admin.fato_internacao f
 JOIN admin.dim_municipio m
     ON m.cod_municipio = f.cod_municipio_internacao
+LEFT JOIN admin.dim_municipio_populacao p
+    ON p.cod_municipio = m.cod_municipio
+   AND p.ano_referencia = f.ano_competencia
 GROUP BY
+    f.ano_competencia,
     m.cod_municipio,
     m.nome_municipio,
-    m.populacao_2024;
+    m.uf,
+    p.ano_referencia,
+    p.populacao;
 
 CREATE OR REPLACE VIEW vw_tipo_atendimento_indicadores AS
 SELECT

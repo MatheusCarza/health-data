@@ -15,6 +15,10 @@ wwv_flow_imp_shared.create_menu(
  p_id=>wwv_flow_imp.id(9357275359169170)
 ,p_name=>'Breadcrumb'
 ,p_static_id=>'breadcrumb'
+,p_created_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_menu_option(
  p_id=>wwv_flow_imp.id(9406967467458043)
@@ -23,6 +27,10 @@ wwv_flow_imp_shared.create_menu_option(
 ,p_static_id=>'assistente-ia'
 ,p_link=>'f?p=&APP_ID.:5:&APP_SESSION.::&DEBUG.:::'
 ,p_page_id=>5
+,p_created_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160919Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_menu_option(
  p_id=>wwv_flow_imp.id(9394940054395894)
@@ -31,6 +39,10 @@ wwv_flow_imp_shared.create_menu_option(
 ,p_static_id=>'estabelecimentos'
 ,p_link=>'f?p=&APP_ID.:3:&APP_SESSION.::&DEBUG.:::'
 ,p_page_id=>3
+,p_created_on=>wwv_flow_imp.dz('20260909155857Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909155857Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_menu_option(
  p_id=>wwv_flow_imp.id(9357482837169174)
@@ -38,6 +50,10 @@ wwv_flow_imp_shared.create_menu_option(
 ,p_static_id=>'home'
 ,p_link=>'f?p=&APP_ID.:1:&APP_SESSION.::&DEBUG.:::'
 ,p_page_id=>1
+,p_created_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152110Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_menu_option(
  p_id=>wwv_flow_imp.id(9388546449362753)
@@ -46,6 +62,10 @@ wwv_flow_imp_shared.create_menu_option(
 ,p_static_id=>unistr('munic\00EDpios')
 ,p_link=>'f?p=&APP_ID.:2:&APP_SESSION.::&DEBUG.:::'
 ,p_page_id=>2
+,p_created_on=>wwv_flow_imp.dz('20260909155326Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909155326Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp_shared.create_menu_option(
  p_id=>wwv_flow_imp.id(9401378770432254)
@@ -54,6 +74,10 @@ wwv_flow_imp_shared.create_menu_option(
 ,p_static_id=>'tipos-de-atendimento'
 ,p_link=>'f?p=&APP_ID.:4:&APP_SESSION.::&DEBUG.:::'
 ,p_page_id=>4
+,p_created_on=>wwv_flow_imp.dz('20260909160501Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909160501Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

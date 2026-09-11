@@ -21,6 +21,10 @@ wwv_flow_imp_shared.create_security_scheme(
 ,p_error_message=>'Insufficient privileges, user is not an Administrator'
 ,p_version_scn=>'SH256:K94FzTYWdjDQ6WIg6w48Or20nhyD_tWnqCuRh9rK4CU'
 ,p_caching=>'BY_USER_BY_PAGE_VIEW'
+,p_created_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_updated_on=>wwv_flow_imp.dz('20260909152112Z')
+,p_created_by=>'MATHEUS'
+,p_updated_by=>'MATHEUS'
 );
 wwv_flow_imp.component_end;
 end;

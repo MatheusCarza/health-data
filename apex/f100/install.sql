@@ -30,6 +30,7 @@ prompt --install
 @@application/shared_components/logic/build_options.sql
 @@application/shared_components/globalization/messages.sql
 @@application/shared_components/globalization/dyntranslations.sql
+@@application/shared_components/security/authentications/acesso_publico.sql
 @@application/shared_components/security/authentications/oracle_apex_accounts.sql
 @@application/user_interfaces/combined_files.sql
 @@application/pages/page_00000.sql

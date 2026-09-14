@@ -29,11 +29,10 @@ no controle Oracle o mês seguinte à última carga bem-sucedida. A variável
 escopo; seu padrão `202412` impede que o scheduler carregue 2025 ou 2026 antes
 da validação das novas fontes e da autorização de expansão temporal.
 
-Os três coletores já aceitam parâmetros pela linha de comando: UF, ano e
-intervalo mensal no SIH; UF no CNES; e UF, ano e URL oficial no IBGE. Esses
-parâmetros ainda não são expostos na DAG porque o gerador DML continua
-dependente do arquivo anual de SP; a ligação será feita junto da carga
-incremental, evitando que um recorte substitua silenciosamente a amostra inteira.
+Os três coletores aceitam parâmetros pela linha de comando: UF, ano e intervalo
+mensal no SIH; UF no CNES; e UF, ano e URL oficial no IBGE. A DAG incremental
+expõe `uf`, `ano` e `mes` para disparos manuais. A DAG histórica continua ligada
+à geração da amostra anual e não deve receber um recorte mensal.
 
 O módulo `src/health_data_pipeline/object_storage.py` publica no bucket
 configurado com partições sob `bronze/`. Na VM ele usa Instance Principal; no
@@ -95,10 +94,10 @@ se a imagem escolhida for Ubuntu.
 
 ## Próximas etapas
 
-1. validar no Airflow que a agenda mensal foi reconhecida e a DAG continua pausada;
-2. preparar e validar a fonte IBGE para a próxima edição temporal;
-3. elevar conscientemente `HEALTH_DATA_AUTO_MAX_COMPETENCIA` para autorizar novas competências;
-4. versionar o checkpoint técnico e atualizar o export APEX;
-5. implantar o mesmo Compose na VM OCI quando houver capacidade A1.
+1. manter a DAG pausada durante a avaliação acadêmica;
+2. validar as fontes da próxima competência antes de elevar conscientemente
+   `HEALTH_DATA_AUTO_MAX_COMPETENCIA`;
+3. implantar o mesmo Compose na VM OCI quando houver capacidade A1;
+4. ativar a agenda somente após validar o primeiro ciclo da nova competência.
 
 Credenciais, Wallet, chaves, `.env` e URLs PAR nunca devem ser versionadas.

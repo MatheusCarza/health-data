@@ -23,19 +23,28 @@ Autonomous AI Database 26ai. A proposta completa combina:
 - alertas e indicadores para acompanhamento da pressão hospitalar;
 - arquitetura preparada para análises estatísticas e modelos preditivos.
 
-O recorte implementado utiliza dados do estado de São Paulo em 2024. O banco
-relacional, a carga de exemplo, as evidências da Sprint 3 e o MVP APEX estão
-disponíveis neste repositório. Além das três consultas `SELECT AI SHOWSQL`, o
-fluxo conversacional foi validado no APEX com respostas em português para
-resumo geral, município, estabelecimento e tipo de atendimento.
+O recorte implementado utiliza dados do estado de São Paulo em 2024. A carga
+operacional contém 2.855.539 internações distribuídas pelas 12 competências do
+ano. Além das consultas históricas, o fluxo conversacional foi validado no APEX
+com respostas em português sobre indicadores, municípios, estabelecimentos,
+tipos de atendimento e uma projeção estatística explicável para a competência
+seguinte.
+
+## Demonstração pública
+
+- [Aplicação Health Data](https://g2fcf3f6cff373b-healthdatadb.adb.sa-saopaulo-1.oraclecloudapps.com/ords/r/health_data/health-data/home)
+- [Vídeo pitch](https://youtu.be/646NepJKuyI)
+
+O acesso público existe para avaliação acadêmica. O App Builder, o SQL Workshop,
+as credenciais do provedor de IA e os recursos administrativos não fazem parte
+da superfície pública.
 
 ## Arquitetura
 
 1. **Fontes:** SIH/SUS, API do CNES e população municipal do IBGE.
 2. **Ingestão:** scripts Python baixam e normalizam os arquivos públicos.
-3. **Camada Bronze:** CSV do IBGE armazenado no OCI Object Storage e lido por
-   uma external table. A automação em desenvolvimento organiza as fontes em
-   prefixos particionados e protege os arquivos brutos por hash.
+3. **Camada Bronze:** fontes publicadas no OCI Object Storage em prefixos
+   particionados. Tamanho e SHA-256 protegem contra sobrescritas divergentes.
 4. **Camada Prata:** dimensões de municípios, estabelecimentos e tipos de
    atendimento, além da tabela fato de internações.
 5. **Consumo:** dashboards e relatórios no Oracle APEX, com Assistente IA em
@@ -50,8 +59,11 @@ resumo geral, município, estabelecimento e tipo de atendimento.
 | IBGE — população municipal | `dados/ibge_populacao_sp_2024.csv` | 645 municípios |
 
 Os arquivos em `dados/` são grandes ou regeneráveis e, por isso, não são
-versionados. O DML entregue contém uma amostra reprodutível: 645 municípios,
-14 tipos de atendimento, 233 estabelecimentos e 5.925 internações.
+versionados. O DML permanece como uma amostra reprodutível para reconstrução
+acadêmica: 645 municípios, 14 tipos de atendimento, 233 estabelecimentos e
+5.925 internações. No ambiente operacional, o backfill incremental validado
+carregou 2.855.539 internações, 638 estabelecimentos e 5.570 municípios na
+dimensão geográfica nacional de apoio.
 
 As descrições dos tipos de atendimento seguem a
 [tabela de especialidades do leito do SIH/SUS](http://tabnet.datasus.gov.br/cgi/sih/sxdescr.htm).
@@ -75,6 +87,8 @@ As descrições dos tipos de atendimento seguem a
 │   ├── populacao_municipio_historica_20260911.sql # histórico anual do IBGE
 │   ├── grants_apex_populacao_historica.sql # leitura da população pelo schema APEX
 │   ├── apex_mvp_views.sql       # views analíticas consumidas pelo APEX
+│   ├── previsao_internacoes.sql # série mensal, backtest e projeção explicável
+│   ├── select_ai_previsao.sql   # inclui a projeção nos objetos do Select AI
 │   └── apex_select_ai.sql       # função intermediária segura do Select AI
 ├── evidencias/sprint3/          # registros visuais da implementação de dados
 └── evidencias/sprint4/          # evidências do MVP APEX
@@ -150,10 +164,10 @@ Depois, no Oracle Database Actions ou SQL Developer:
 O pacote `pkg_health_data_etl` substitui somente a competência informada e
 confirma a mesma contagem da staging antes do `COMMIT`. Qualquer falha executa
 `ROLLBACK` e fica registrada em `etl_execucao`. O módulo
-`src/health_data_pipeline/oracle_staging.py` já prepara uma competência e as
+`src/health_data_pipeline/oracle_staging.py` prepara uma competência e as
 quatro stagings; o comando `carregar_competencia_oracle.py` exige `--executar`
-para escrever. A integração com a DAG permanece desativada até o teste
-controlado no banco.
+para escrever. O backfill de 2024 e o caminho idempotente da DAG incremental
+foram validados no Autonomous Database.
 
 O envio anual para a camada Bronze também começa em modo de planejamento. A
 publicação real exige confirmação explícita e reutiliza um objeto somente quando
@@ -202,13 +216,14 @@ python testar_conexao_oracle.py
 
 ## Orquestração com Airflow
 
-O diretório `airflow/` contém uma primeira DAG executável que coordena os três
-coletores, aplica validações de qualidade e gera o DML de exemplo. Ela começa
-sem agenda e sem escrita automática no Oracle. O executor incremental foi
-validado no backfill integral de `SP/2024`, mas sua incorporação à DAG e a agenda
-mensal permanecem pendentes. Consulte
-`airflow/README.md` para executar com Docker Compose e implantar a mesma
-estrutura em uma VM do OCI Compute.
+O diretório `airflow/` contém duas DAGs. A DAG histórica reproduz a amostra e
+permanece sem agenda. A DAG `health_data_incremental` coleta uma competência,
+valida e publica as fontes Bronze, carrega as stagings, executa o pacote Oracle
+e reconcilia o resultado. O primeiro disparo manual reutilizou com segurança a
+carga de `12/2024` e reconciliou 225.756 internações sem duplicação. A agenda
+mensal está configurada para o dia 15 às 06:00 no fuso de São Paulo, mas a DAG
+permanece pausada e protegida pela trava `HEALTH_DATA_AUTO_MAX_COMPETENCIA=202412`
+durante o fechamento acadêmico. Consulte `airflow/README.md`.
 
 ## Restauração do MVP APEX
 
@@ -223,6 +238,18 @@ MVP em outro ambiente:
    `GRANT EXECUTE` ao schema APEX;
 5. importe `apex/f100/install.sql` pelo APEX ou execute o conjunto de arquivos
    no ambiente de destino.
+
+Para habilitar a projeção estatística sem alterar a interface, execute também
+`sql/previsao_internacoes.sql` no schema do workspace depois das views do MVP.
+O script cria a série mensal observada, o backtest e a projeção para a próxima
+competência por média móvel ponderada de três meses. A faixa informada usa o
+erro absoluto médio retrospectivo e é identificada explicitamente como
+indicativa, não como intervalo de confiança.
+
+Depois da criação das views, `sql/select_ai_previsao.sql` adiciona ao profile
+existente somente as visões mensais e preditivas, além das instruções semânticas
+que impedem dupla contagem entre total e tipos de atendimento. A credencial e o
+profile base precisam ser configurados separadamente pelo administrador.
 
 A chave do provedor, a credencial protegida no banco e demais segredos não são
 exportados nem versionados. O código APEX chama somente a função intermediária
